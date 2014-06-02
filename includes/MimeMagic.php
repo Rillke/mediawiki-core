@@ -295,7 +295,7 @@ class MimeMagic {
 				continue;
 			}
 
-			#print "processing MIME INFO line $s<br>";
+			# print "processing MIME INFO line $s<br>";
 
 			$match = array();
 			if ( preg_match( '!\[\s*(\w+)\s*\]!', $s, $match ) ) {
@@ -479,6 +479,13 @@ class MimeMagic {
 		return in_array( strtolower( $extension ), $types );
 	}
 
+	function isChemFileExtension( $extension ) {
+		static $types = array(
+			'mol', 'sdf', 'rxn',
+		);
+		return in_array( strtolower( $extension ), $types );
+	}
+
 	/**
 	 * Improves a mime type using the file extension. Some file formats are very generic,
 	 * so their mime type is not very meaningful. A more useful mime type can be derived
@@ -518,6 +525,8 @@ class MimeMagic {
 					".$ext is not a known OPC extension.\n" );
 				$mime = 'application/zip';
 			}
+		} elseif ( ( $mime === 'text/plain' ) && $this->isChemFileExtension( $ext ) ) {
+			$mime = $this->guessTypesForExtension( $ext );
 		}
 
 		if ( isset( $this->mMimeTypeAliases[$mime] ) ) {
@@ -911,7 +920,7 @@ class MimeMagic {
 
 		if ( $m ) {
 			# normalize
-			$m = preg_replace( '![;, ].*$!', '', $m ); #strip charset, etc
+			$m = preg_replace( '![;, ].*$!', '', $m ); # strip charset, etc
 			$m = trim( $m );
 			$m = strtolower( $m );
 
