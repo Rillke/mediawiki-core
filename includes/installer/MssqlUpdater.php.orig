@@ -111,6 +111,7 @@ class MssqlUpdater extends DatabaseUpdater {
 			array( 'addField', 'mwuser', 'user_password_expires', 'patch-user_password_expires.sql' ),
 
 			// 1.24
+<<<<<<< HEAD
 			// Constraint updates
 			array( 'updateConstraints', 'category_types', 'categorylinks', 'cl_type' ),
 			array( 'updateConstraints', 'major_mime', 'filearchive', 'fa_major_mime' ),
@@ -121,13 +122,14 @@ class MssqlUpdater extends DatabaseUpdater {
 			array( 'updateConstraints', 'media_type', 'image', 'img_media_type' ),
 			array( 'updateConstraints', 'media_type', 'uploadstash', 'us_media_type' ),
 			// END: Constraint updates
+=======
 			array( 'modifyField', 'image', 'img_major_mime',
 				'patch-img_major_mime-chemical.sql' ),
 			array( 'modifyField', 'oldimage', 'oi_major_mime',
 				'patch-oi_major_mime-chemical.sql' ),
 			array( 'modifyField', 'filearchive', 'fa_major_mime',
 				'patch-fa_major_mime-chemical.sql' ),
-
+>>>>>>> Add "chemical" major MIME type to the image tables
 		);
 	}
 }
