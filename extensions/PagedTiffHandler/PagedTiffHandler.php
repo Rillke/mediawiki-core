@@ -123,7 +123,7 @@ $wgAutoloadClasses['PagedTiffHandler'] = $dir . 'PagedTiffHandler_body.php';
 $wgAutoloadClasses['TiffReader'] = $dir . 'TiffReader.php';
 $wgAutoloadClasses['PagedTiffHandlerSeleniumTestSuite'] = $dir . 'selenium/PagedTiffHandlerTestSuite.php';
 
-$wgMediaHandlers['image/tiff'] = 'PagedTiffHandler';
+$wgMediaHandlers['chemical/x-mdl-molfile'] = 'PagedTiffHandler';
 
 define( 'TIFF_METADATA_VERSION', '1.4' );
 # 1.0: initial
