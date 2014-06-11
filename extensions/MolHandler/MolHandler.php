@@ -117,8 +117,9 @@ $wgFileExtensions[] = 'tif';
 $dir = __DIR__ . '/';
 $wgMessagesDirs['PagedTiffHandler'] = __DIR__ . '/i18n';
 
-
-$wgMolConvertCommand = '$path/babel -i$format $input $output';
+$wgMolConverterPath = '/home/felix/bin';
+$wgMolConvertCommand2 = '$path/babel -i$format $input $output';
+$wgMolConvertCommand = '$path/indigo-depict $input $output';
 $wgMediaHandlers['chemical/x-mdl-molfile'] = 'MolHandler';
 $wgAutoloadClasses['MolHandler'] = $dir . 'MolHandler_body.php';
 
