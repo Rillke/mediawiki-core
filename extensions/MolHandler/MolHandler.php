@@ -116,14 +116,11 @@ $wgFileExtensions[] = 'tif';
 
 $dir = __DIR__ . '/';
 $wgMessagesDirs['PagedTiffHandler'] = __DIR__ . '/i18n';
-$wgExtensionMessagesFiles['PagedTiffHandler'] = $dir . 'PagedTiffHandler.i18n.php';
-$wgExtensionMessagesFiles['PagedTiffHandlerMagic'] = $dir . 'PagedTiffHandler.i18n.magic.php';
-$wgAutoloadClasses['PagedTiffImage'] = $dir . 'PagedTiffHandler.image.php';
-$wgAutoloadClasses['PagedTiffHandler'] = $dir . 'PagedTiffHandler_body.php';
-$wgAutoloadClasses['TiffReader'] = $dir . 'TiffReader.php';
-$wgAutoloadClasses['PagedTiffHandlerSeleniumTestSuite'] = $dir . 'selenium/PagedTiffHandlerTestSuite.php';
 
-$wgMediaHandlers['chemical/x-mdl-molfile'] = 'PagedTiffHandler';
+
+$wgMolConvertCommand = '$path/babel -i$format $input $output';
+$wgMediaHandlers['chemical/x-mdl-molfile'] = 'MolHandler';
+$wgAutoloadClasses['MolHandler'] = $dir . 'MolHandler_body.php';
 
 define( 'TIFF_METADATA_VERSION', '1.4' );
 # 1.0: initial
