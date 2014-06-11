@@ -582,16 +582,25 @@ class MimeMagic {
 	private function doGuessMimeType( $file, $ext ) { // TODO: remove $ext param
 		// Read a chunk of the file
 		wfSuppressWarnings();
-		// @todo FIXME: Shouldn't this be rb?
-		$f = fopen( $file, 'rt' );
+		$f = fopen( $file, 'rb' );
 		wfRestoreWarnings();
 
 		if ( !$f ) {
 			return 'unknown/unknown';
 		}
+
+		$fsize = filesize( $file );
+		if ( $fsize === false ) {
+			return 'unknown/unknown';
+		}
+
 		$head = fread( $f, 1024 );
-		fseek( $f, -65558, SEEK_END );
-		$tail = fread( $f, 65558 ); // 65558 = maximum size of a zip EOCDR
+		$tailLength = min( 65558, $fsize ); // 65558 = maximum size of a zip EOCDR
+		if ( fseek( $f, -1 * $tailLength, SEEK_END ) === -1 ) {
+			throw new MWException(
+				"Seeking $tailLength bytes from EOF failed in " . __METHOD__ );
+		}
+		$tail = fread( $f, $tailLength );
 		fclose( $f );
 
 		wfDebug( __METHOD__ . ": analyzing head and tail of $file for magic numbers.\n" );
@@ -615,8 +624,22 @@ class MimeMagic {
 			"\x7fELF"          => 'application/octet-stream', // ELF binary
 		);
 
+		$tails = array(
+			// Chemical types
+			"\x0D\x0AM  END\x0D\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
+		);
+
 		foreach ( $headers as $magic => $candidate ) {
 			if ( strncmp( $head, $magic, strlen( $magic ) ) == 0 ) {
+				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
+				return $candidate;
+			}
+		}
+
+		wfDebug( __METHOD__ . ": Tails.\n" );
+		foreach ( $tails as $magic => $candidate ) {
+			wfDebug( __METHOD__ . ": HEAD: $head, Tail: $tail, Magic: $magic\n" );
+			if ( substr_compare( $tail, $magic, -strlen( $magic ), strlen( $magic ) ) === 0 ) {
 				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
 				return $candidate;
 			}
