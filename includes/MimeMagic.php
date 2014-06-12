@@ -618,6 +618,9 @@ class MimeMagic {
 			'%PDF'             => 'application/pdf',
 			'gimp xcf'         => 'image/x-xcf',
 
+			// Chemical types
+			'$RXN'             => 'chemical/x-mdl-rxnfile',
+
 			// Some forbidden fruit...
 			'MZ'               => 'application/octet-stream', // DOS/Windows executable
 			"\xca\xfe\xba\xbe" => 'application/octet-stream', // Mach-O binary
@@ -636,9 +639,7 @@ class MimeMagic {
 			}
 		}
 
-		wfDebug( __METHOD__ . ": Tails.\n" );
 		foreach ( $tails as $magic => $candidate ) {
-			wfDebug( __METHOD__ . ": HEAD: $head, Tail: $tail, Magic: $magic\n" );
 			if ( substr_compare( $tail, $magic, -strlen( $magic ), strlen( $magic ) ) === 0 ) {
 				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
 				return $candidate;
