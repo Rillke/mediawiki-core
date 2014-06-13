@@ -63,7 +63,7 @@ abstract class CTFHandler extends SvgHandler {
 			return new MediaTransformError( 'thumbnail_error', $clientWidth, $clientHeight, $err );
 		}
 
-		$svgThumbPath = $image->getThumbPath( 'molhandler.svg' );
+		$svgThumbPath = $image->getThumbPath( 'molhandler-' . $image->getName() );
 		$svgPath = $dstPath . '.svg';
 
 		if ( !wfMkdirParents( dirname( $dstPath ), null, __METHOD__ ) || !wfMkdirParents( dirname( $svgPath ), null, __METHOD__ ) ) {
@@ -79,6 +79,7 @@ abstract class CTFHandler extends SvgHandler {
 		if ( $thumbExists ) {
 			$tempFSFile = $repo->getLocalCopy( $svgThumbPath );
 			$svgPath = $tempFSFile->getPath();
+			wfDebug( "SVG thumb exists at $svgPath. Re-using.\n" );
 		}
 
 		$srcPath = $image->getLocalRefPath();
@@ -186,12 +187,12 @@ abstract class CTFHandler extends SvgHandler {
 	function getMetadata( $file, $filename ) {
 		global $wgMolConvertCommand, $wgMolConverterPath;
 
-		wfDebug( "Temp path is $filename\n usingXXX " . static::FILE_FORMAT );
-
 		# Create SVG if it does not yet exist, otherwise just modify the parameters
 		$err = false;
 		$retval = '';
 		$svgfilename = $filename . '.svg';
+		$tmpFilename = $filename . '.' . static::FILE_FORMAT;
+		copy ( $filename, $tmpFilename );
 		$limits = array(
 			'memory' => 3072000
 		);
@@ -202,7 +203,7 @@ abstract class CTFHandler extends SvgHandler {
 				array( '$path/', '$format', '$input', '$output' ),
 				array( $wgMolConverterPath ? wfEscapeShellArg( "$wgMolConverterPath/" ) : "",
 					wfEscapeShellArg( static::FILE_FORMAT ),
-					wfEscapeShellArg( $filename ),
+					wfEscapeShellArg( $tmpFilename ),
 					wfEscapeShellArg( $svgfilename ) ),
 				$wgMolConvertCommand
 			);
@@ -212,6 +213,7 @@ abstract class CTFHandler extends SvgHandler {
 			$err = wfShellExecWithStderr( $cmd, $retval, array(), $limits );
 			wfProfileOut( 'molconvert' );
 		}
+		unlink( $tmpFilename );
 		$removed = $this->removeBadFile( $svgfilename, $retval );
 		if ( $retval != 0 || $removed ) {
 			$this->logErrorForExternalProcess( $retval, $err, $cmd );
