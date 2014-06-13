@@ -111,7 +111,7 @@
 							$loadNotify.text("Uploading. Page will re-load upon completion.");
 
 							if (!molfile) return alert("Molfile is empty.");
-							if (!/\n$/.test(molfile)) molfile += '\n';
+							//if (!/\x0D\x0A$/.test(molfile)) molfile += '\x0D\x0A';
 
 							var mpm = bot.multipartMessageForBinaryFiles();
 							mpm.appendPart('format', 'json');

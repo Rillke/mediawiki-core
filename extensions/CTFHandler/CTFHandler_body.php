@@ -149,7 +149,7 @@ abstract class CTFHandler extends SvgHandler {
 		$err = false;
 		$retval = '';
 		$limits = array(
-				'memory' => 3072000
+				'memory' => 5072000
 		);
 		wfDebug( ">! Molfile rasterize $wgMolConverterPath\n" );
 		if ( !file_exists( $svgPath ) ) {
