@@ -629,7 +629,9 @@ class MimeMagic {
 
 		$tails = array(
 			// Chemical types
-			"\x0D\x0AM  END\x0D\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
+			"M  END\x0D\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
+			"M  END\x0D" => 'chemical/x-mdl-molfile', // MDL-Molfile
+			"M  END\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
 		);
 
 		foreach ( $headers as $magic => $candidate ) {
