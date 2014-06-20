@@ -85,6 +85,8 @@ video/mpeg mpg mpeg
 chemical/x-mdl-molfile mol
 chemical/x-mdl-sdfile sdf
 chemical/x-mdl-rxnfile rxn
+chemical/x-mdl-rdfile rd
+chemical/x-mdl-rgfile rg
 END_STRING
 );
 
@@ -133,9 +135,11 @@ text/plain [TEXT]
 text/html [TEXT]
 video/ogg [VIDEO]
 video/mpeg [VIDEO]
-chemical/x-mdl-molfile mol   [DRAWING]
-chemical/x-mdl-sdfile sdf    [DRAWING]
-chemical/x-mdl-rxnfile rxn   [DRAWING]
+chemical/x-mdl-molfile       [DRAWING]
+chemical/x-mdl-sdfile        [DRAWING]
+chemical/x-mdl-rxnfile       [DRAWING]
+chemical/x-mdl-rdfile        [DRAWING]
+chemical/x-mdl-rgfile        [DRAWING]
 unknown/unknown application/octet-stream application/x-empty [UNKNOWN]
 END_STRING
 );
@@ -487,7 +491,7 @@ class MimeMagic {
 
 	function isChemFileExtension( $extension ) {
 		static $types = array(
-			'mol', 'sdf', 'rxn',
+			'mol', 'sdf', 'rxn', 'rd',
 		);
 		return in_array( strtolower( $extension ), $types );
 	}
@@ -589,17 +593,20 @@ class MimeMagic {
 		# Note that a lot of chemical table files contain embedded molfiles.
 		# Therefore, always check for them before checking for molfiles!
 		$headers = array(
-			'$RXN'                             => 'chemical/x-mdl-rxnfile',
+			'$RXN'                              => 'chemical/x-mdl-rxnfile',
+			'$RDFILE '                          => 'chemical/x-mdl-rdfile',
+			'$MDL'                              => 'chemical/x-mdl-rgfile',
+		);
+		$tailsRegExps = array(
+			# MDL-Molfile with all kind of line endings
+			'/\n\s*M  END\s*$/m'                => 'chemical/x-mdl-molfile',
+			'/\n\s*$$$$\s*$/'                   => 'chemical/x-mdl-sdfile',
 		);
 		$headersRegExps = array(
 			# MDL-Molfile counts line
 			# #atoms #bond_numbers #atom_lists [obsolete] [999|#propery_lines] <version>
-			"/\n(\s*\d{1,3}\s+){3}[^\n]*(?:\d+\s+){1,12}V\d{4,5}\n/"
-			                                   => 'chemical/x-mdl-molfile',
-		);
-		$tailsRegExps = array(
-			# MDL-Molfile with all kind of line endings
-			"/\s+M  END\s*\n\s*$/"             => 'chemical/x-mdl-molfile',
+			'/\n(\s*\d{1,3}\s+){3}[^\n]*(?:\d+\s+){1,12}V\d{4,5}\n/m'
+			                                    => 'chemical/x-mdl-molfile',
 		);
 
 		# Compare headers
@@ -612,7 +619,7 @@ class MimeMagic {
 
 		# Match tails
 		foreach ( $tailsRegExps as $regExp => $candidate ) {
-			if ( preg_match( $regExp, $head ) ) {
+			if ( preg_match( $regExp, $tail ) ) {
 				wfDebug( __METHOD__ . ": magic tail in $file recognized as $candidate\n" );
 				return $candidate;
 			}
@@ -812,7 +819,7 @@ class MimeMagic {
 			return 'image/vnd.djvu';
 		}
 
-		return $this->doGuessChemicalMime();
+		return $this->doGuessChemicalMime( $head, $tail );
 	}
 
 	/**

@@ -172,3 +172,5 @@ application/x-opc+zip docx dotx docm dotm potx ppsx pptx ppam pptm potm ppsm xls
 chemical/x-mdl-molfile mol
 chemical/x-mdl-sdfile sdf
 chemical/x-mdl-rxnfile rxn
+chemical/x-mdl-rdfile rd
+chemical/x-mdl-rgfile rg
