@@ -53,8 +53,8 @@ $wgMediaHandlers['chemical/x-mdl-rxnfile'] = 'RxnHandler';
 
 $wgAutoloadClasses['CTFHandlerHooks'] = $dir . 'CTFHandlerHooks.php';
 $wgAutoloadClasses['CTFHandler'] = $dir . 'CTFHandler_body.php';
-$wgAutoloadClasses['MolHandler'] = $dir . 'MolHandler.php';
-$wgAutoloadClasses['RxnHandler'] = $dir . 'RxnHandler.php';
+$wgAutoloadClasses['MolHandler'] = $dir . 'MolMediaHandler.php';
+$wgAutoloadClasses['RxnHandler'] = $dir . 'RxnMediaHandler.php';
 
 
 $ctfHanlderModuleInfo = array(

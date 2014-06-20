@@ -82,6 +82,9 @@ text/plain txt
 text/html html htm
 video/ogg ogv ogm ogg
 video/mpeg mpg mpeg
+chemical/x-mdl-molfile mol
+chemical/x-mdl-sdfile sdf
+chemical/x-mdl-rxnfile rxn
 END_STRING
 );
 
@@ -130,6 +133,9 @@ text/plain [TEXT]
 text/html [TEXT]
 video/ogg [VIDEO]
 video/mpeg [VIDEO]
+chemical/x-mdl-molfile mol   [DRAWING]
+chemical/x-mdl-sdfile sdf    [DRAWING]
+chemical/x-mdl-rxnfile rxn   [DRAWING]
 unknown/unknown application/octet-stream application/x-empty [UNKNOWN]
 END_STRING
 );
@@ -573,11 +579,61 @@ class MimeMagic {
 	}
 
 	/**
+	 * Guess chemical mime types from file contents.
+	 *
+	 * @param string $head
+	 * @param string $tail
+	 * @return bool|string Mime type
+	 */
+	private function doGuessChemicalMime( $head, $tail ) {
+		$headers = array(
+			'$RXN'                             => 'chemical/x-mdl-rxnfile',
+		);
+		$headersRegExps = array(
+			# MDL-Molfile counts line
+			# #atoms #bond_numbers #atom_lists [obsolete] [999|#propery_lines] <version>
+			"/\n(\s*\d{1,3}\s+){3}[^\n]*(?:\d+\s+){1,12}V\d{4,5}\n/"
+			                                   => 'chemical/x-mdl-molfile',
+		);
+		$tailsRegExps = array(
+			# MDL-Molfile with all kind of line endings
+			"/\s+M  END\s*\n\s*$/"             => 'chemical/x-mdl-molfile',
+		);
+
+		# Compare headers
+		foreach ( $headers as $magic => $candidate ) {
+			if ( strncmp( $head, $magic, strlen( $magic ) ) === 0 ) {
+				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
+				return $candidate;
+			}
+		}
+
+		# Compare tails
+		foreach ( $tails as $magic => $candidate ) {
+			if ( substr_compare( $tail, $magic, -strlen( $magic ), strlen( $magic ) ) === 0 ) {
+				wfDebug( __METHOD__ . ": magic tail in $file recognized as $candidate\n" );
+				return $candidate;
+			}
+		}
+
+		# Match headers
+		foreach ( $headersRegExps as $regExp => $candidate ) {
+			if ( preg_match( $regExp, $head ) ) {
+				wfDebug( __METHOD__ . ": regexp in $file recognized as $candidate\n" );
+				return $candidate;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Guess the mime type from the file contents.
 	 *
 	 * @param string $file
 	 * @param mixed $ext
 	 * @return bool|string
+	 * @throws MWException
 	 */
 	private function doGuessMimeType( $file, $ext ) { // TODO: remove $ext param
 		// Read a chunk of the file
@@ -618,31 +674,14 @@ class MimeMagic {
 			'%PDF'             => 'application/pdf',
 			'gimp xcf'         => 'image/x-xcf',
 
-			// Chemical types
-			'$RXN'             => 'chemical/x-mdl-rxnfile',
-
 			// Some forbidden fruit...
 			'MZ'               => 'application/octet-stream', // DOS/Windows executable
 			"\xca\xfe\xba\xbe" => 'application/octet-stream', // Mach-O binary
 			"\x7fELF"          => 'application/octet-stream', // ELF binary
 		);
 
-		$tails = array(
-			// Chemical types
-			"M  END\x0D\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
-			"M  END\x0D" => 'chemical/x-mdl-molfile', // MDL-Molfile
-			"M  END\x0A" => 'chemical/x-mdl-molfile', // MDL-Molfile
-		);
-
 		foreach ( $headers as $magic => $candidate ) {
-			if ( strncmp( $head, $magic, strlen( $magic ) ) == 0 ) {
-				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
-				return $candidate;
-			}
-		}
-
-		foreach ( $tails as $magic => $candidate ) {
-			if ( substr_compare( $tail, $magic, -strlen( $magic ), strlen( $magic ) ) === 0 ) {
+			if ( strncmp( $head, $magic, strlen( $magic ) ) === 0 ) {
 				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
 				return $candidate;
 			}
@@ -771,7 +810,7 @@ class MimeMagic {
 			return 'image/vnd.djvu';
 		}
 
-		return false;
+		return $this->doGuessChemicalMime();
 	}
 
 	/**

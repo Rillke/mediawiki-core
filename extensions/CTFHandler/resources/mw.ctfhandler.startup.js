@@ -126,7 +126,7 @@
 							mpm.appendPart('ignorewarnings', 1);
 							mpm.appendPart('token', mw.user.tokens.get('editToken'));
 							mpm.$send().done(function() {
-								console.log(arguments);
+								location.href = mw.util.getUrl( wgPageName );
 							});
 						});
 					},
