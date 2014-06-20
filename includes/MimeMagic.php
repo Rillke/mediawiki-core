@@ -586,6 +586,8 @@ class MimeMagic {
 	 * @return bool|string Mime type
 	 */
 	private function doGuessChemicalMime( $head, $tail ) {
+		# Note that a lot of chemical table files contain embedded molfiles.
+		# Therefore, always check for them before checking for molfiles!
 		$headers = array(
 			'$RXN'                             => 'chemical/x-mdl-rxnfile',
 		);
@@ -608,9 +610,9 @@ class MimeMagic {
 			}
 		}
 
-		# Compare tails
-		foreach ( $tails as $magic => $candidate ) {
-			if ( substr_compare( $tail, $magic, -strlen( $magic ), strlen( $magic ) ) === 0 ) {
+		# Match tails
+		foreach ( $tailsRegExps as $regExp => $candidate ) {
+			if ( preg_match( $regExp, $head ) ) {
 				wfDebug( __METHOD__ . ": magic tail in $file recognized as $candidate\n" );
 				return $candidate;
 			}
