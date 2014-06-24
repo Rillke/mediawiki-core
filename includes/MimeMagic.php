@@ -82,11 +82,6 @@ text/plain txt
 text/html html htm
 video/ogg ogv ogm ogg
 video/mpeg mpg mpeg
-chemical/x-mdl-molfile mol
-chemical/x-mdl-sdfile sdf
-chemical/x-mdl-rxnfile rxn
-chemical/x-mdl-rdfile rd
-chemical/x-mdl-rgfile rg
 END_STRING
 );
 
@@ -135,11 +130,6 @@ text/plain [TEXT]
 text/html [TEXT]
 video/ogg [VIDEO]
 video/mpeg [VIDEO]
-chemical/x-mdl-molfile       [DRAWING]
-chemical/x-mdl-sdfile        [DRAWING]
-chemical/x-mdl-rxnfile       [DRAWING]
-chemical/x-mdl-rdfile        [DRAWING]
-chemical/x-mdl-rgfile        [DRAWING]
 unknown/unknown application/octet-stream application/x-empty [UNKNOWN]
 END_STRING
 );
@@ -207,11 +197,19 @@ class MimeMagic {
 			wfDebug( __METHOD__ . ": no mime types file defined, using build-ins only.\n" );
 		}
 
+		# Allow media handling extensions adding MIME-types
+		wfRunHooks( 'MimeMagicCustomTypes', array(
+			$this,
+			function ( $extraTypes ) use ( &$types ) {
+				$types = $types . "\n" . $extraTypes;
+			}
+		) );
+
 		$types = str_replace( array( "\r\n", "\n\r", "\n\n", "\r\r", "\r" ), "\n", $types );
 		$types = str_replace( "\t", " ", $types );
 
 		$this->mMimeToExt = array();
-		$this->mToMime = array();
+		$this->mExtToMime = array();
 
 		$lines = explode( "\n", $types );
 		foreach ( $lines as $s ) {
@@ -281,6 +279,13 @@ class MimeMagic {
 		} else {
 			wfDebug( __METHOD__ . ": no mime info file defined, using build-ins only.\n" );
 		}
+
+		# Allow media handling extensions adding MIME-info
+		wfRunHooks( 'MimeMagicCustomInfo', array( $this,
+			function ( $extraInfo ) use ( &$info ) {
+				$info = $info . "\n" . $extraInfo;
+			}
+		) );
 
 		$info = str_replace( array( "\r\n", "\n\r", "\n\n", "\r\r", "\r" ), "\n", $info );
 		$info = str_replace( "\t", " ", $info );
@@ -489,13 +494,6 @@ class MimeMagic {
 		return in_array( strtolower( $extension ), $types );
 	}
 
-	function isChemFileExtension( $extension ) {
-		static $types = array(
-			'mol', 'sdf', 'rxn', 'rd',
-		);
-		return in_array( strtolower( $extension ), $types );
-	}
-
 	/**
 	 * Improves a mime type using the file extension. Some file formats are very generic,
 	 * so their mime type is not very meaningful. A more useful mime type can be derived
@@ -535,9 +533,10 @@ class MimeMagic {
 					".$ext is not a known OPC extension.\n" );
 				$mime = 'application/zip';
 			}
-		} elseif ( ( $mime === 'text/plain' ) && $this->isChemFileExtension( $ext ) ) {
-			$mime = $this->guessTypesForExtension( $ext );
 		}
+
+		# Media handling extensions can improve the MIME detected
+		wfRunHooks( 'MimeMagicImproveFromExtension', array( $this, $ext, &$mime ) );
 
 		if ( isset( $this->mMimeTypeAliases[$mime] ) ) {
 			$mime = $this->mMimeTypeAliases[$mime];
@@ -580,60 +579,6 @@ class MimeMagic {
 
 		wfDebug( __METHOD__ . ": guessed mime type of $file: $mime\n" );
 		return $mime;
-	}
-
-	/**
-	 * Guess chemical mime types from file contents.
-	 *
-	 * @param string $head
-	 * @param string $tail
-	 * @return bool|string Mime type
-	 */
-	private function doGuessChemicalMime( $head, $tail ) {
-		# Note that a lot of chemical table files contain embedded molfiles.
-		# Therefore, always check for them before checking for molfiles!
-		$headers = array(
-			'$RXN'                              => 'chemical/x-mdl-rxnfile',
-			'$RDFILE '                          => 'chemical/x-mdl-rdfile',
-			'$MDL'                              => 'chemical/x-mdl-rgfile',
-		);
-		$tailsRegExps = array(
-			# MDL-Molfile with all kind of line endings
-			'/\n\s*M  END\s*$/m'                => 'chemical/x-mdl-molfile',
-			'/\n\s*$$$$\s*$/'                   => 'chemical/x-mdl-sdfile',
-		);
-		$headersRegExps = array(
-			# MDL-Molfile counts line
-			# #atoms #bond_numbers #atom_lists [obsolete] [999|#propery_lines] <version>
-			'/\n(\s*\d{1,3}\s+){3}[^\n]*(?:\d+\s+){1,12}V\d{4,5}\n/m'
-			                                    => 'chemical/x-mdl-molfile',
-		);
-
-		# Compare headers
-		foreach ( $headers as $magic => $candidate ) {
-			if ( strncmp( $head, $magic, strlen( $magic ) ) === 0 ) {
-				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
-				return $candidate;
-			}
-		}
-
-		# Match tails
-		foreach ( $tailsRegExps as $regExp => $candidate ) {
-			if ( preg_match( $regExp, $tail ) ) {
-				wfDebug( __METHOD__ . ": magic tail in $file recognized as $candidate\n" );
-				return $candidate;
-			}
-		}
-
-		# Match headers
-		foreach ( $headersRegExps as $regExp => $candidate ) {
-			if ( preg_match( $regExp, $head ) ) {
-				wfDebug( __METHOD__ . ": regexp in $file recognized as $candidate\n" );
-				return $candidate;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -690,7 +635,7 @@ class MimeMagic {
 		);
 
 		foreach ( $headers as $magic => $candidate ) {
-			if ( strncmp( $head, $magic, strlen( $magic ) ) === 0 ) {
+			if ( strncmp( $head, $magic, strlen( $magic ) ) == 0 ) {
 				wfDebug( __METHOD__ . ": magic header in $file recognized as $candidate\n" );
 				return $candidate;
 			}
@@ -819,7 +764,17 @@ class MimeMagic {
 			return 'image/vnd.djvu';
 		}
 
-		return $this->doGuessChemicalMime( $head, $tail );
+		# Media handling extensions can guess the MIME by content
+		# It's intentionally here so that if core is wrong about a type (false positive),
+		# people will hopefully nag and submit patches :)
+		$mime = false;
+		# Some strings by reference for performance - assuming well-behaved hooks
+		wfRunHooks(
+			'MimeMagicGuessFromContent',
+			array( $this, &$head, &$tail, $file, &$mime )
+		);
+
+		return $mime;
 	}
 
 	/**
