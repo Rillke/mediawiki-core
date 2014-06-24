@@ -149,7 +149,7 @@
 									r = $.secureEvalJSON( r );
 								} catch (ex) {}
 								if (r && r.upload && r.upload.result && r.upload.result === 'Success') {
-									location.href = mw.util.getUrl( wgPageName );
+									location.href = mw.util.getUrl( 'File:' + dest );
 								} else {
 									var extraStuff = '';
 									if ( !r || !r.error ) r = { error: {} };
