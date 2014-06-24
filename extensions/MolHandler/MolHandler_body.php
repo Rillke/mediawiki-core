@@ -96,7 +96,7 @@ abstract class MolHandler extends SvgHandler {
 
 		# It is important that the SVG file created ends with it's real name
 		# otherwise it won't be purged
-		$svgThumbPath = $image->getThumbPath( 'molhandler-' . $image->getName() );
+		$svgThumbPath = $image->getThumbPath( 'molhandler-' . $image->getName() . '.svg' );
 		$svgPath = $dstPath . '.svg';
 
 		if ( !wfMkdirParents( dirname( $dstPath ), null, __METHOD__ )
