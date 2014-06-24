@@ -58,7 +58,7 @@
 			});
 		});
 
-		mw.loader.using(['jquery.ui.dialog'], function() {
+		mw.loader.using(['jquery.ui.dialog', 'jquery.json'], function() {
 			$defRL.resolve();
 		});
 
@@ -81,7 +81,15 @@
 						'margin-top': '-2em'
 					})
 					.appendTo($editor),
-				$molEdit = molEdit.$create(530, 800, fileContent);
+				$molEdit = molEdit.$create(530, 800, fileContent),
+				$destWrap = $('<div>')
+					.appendTo($editor),
+				$destLabel = $('<label for="ext-mol-dest-input">')
+					.text('Destination (file name)')
+					.appendTo($destWrap),
+				$destination = $('<input id="ext-mol-dest-input" type="text" placeholder="Destination (file name)" title="Destination (file name)" title" style="width:90%" />')
+					.val(wgTitle)
+					.appendTo($destWrap);
 				
 			// molEdit.$create adds some "special" properties that are not part of $.fn
 			// Therefore don't chain!
@@ -92,7 +100,7 @@
 				});
 			}).error(function() {
 				$loadNotify.text("Molfile editor cannot be loaded. We regret the inconvenience. If this is a persistant issue, contact the system administrator of this site.");
-			}).appendTo($editor);
+			}).prependTo($editor);
 			
 			
 			$editor.dialog({
@@ -101,7 +109,7 @@
 					'Save': function() {
 						// Upload
 						$(this).height($(this).height());
-						$molEdit.fadeOut();
+						$molEdit.add($destWrap).fadeOut();
 						$loadNotify.text("Obtaining Molfile from editor.").fadeIn();
 						$(this).dialog('widget').find('.ui-dialog-buttonpane button').button({
 							'disabled': true
@@ -111,12 +119,23 @@
 							$loadNotify.text("Uploading. Page will re-load upon completion.");
 
 							if (!molfile) return alert("Molfile is empty.");
-							//if (!/\x0D\x0A$/.test(molfile)) molfile += '\x0D\x0A';
+							var dest = $.trim($destination.val()).replace(/[Ff]ile:/, '');
+							if ( /^\$RXN/.test( molfile ) ) {
+								if ( !/\.rxn$/.test( dest ) ) {
+									alert( 'Adjusted file name to match its content (reaction).' );
+									dest += '.rxn';
+								}
+							} else {
+								if ( /\.rxn$/.test( dest ) ) {
+									alert( 'Adjusted file name to match its content (molecule).' );
+									dest += '.mol';
+								}
+							}
 
 							var mpm = bot.multipartMessageForBinaryFiles();
 							mpm.appendPart('format', 'json');
 							mpm.appendPart('action', 'upload');
-							mpm.appendPart('filename', wgTitle);
+							mpm.appendPart('filename', dest);
 							mpm.appendPart('filesize', molfile.length);
 							var mime = /\.mol$/.test(wgTitle) ? 'chemical/x-mdl-molfile' : 'chemical/x-mdl-rxnfile';
 							var blob = new Blob([molfile], {
@@ -125,8 +144,25 @@
 							mpm.appendPart('file', blob, wgTitle, mime);
 							mpm.appendPart('ignorewarnings', 1);
 							mpm.appendPart('token', mw.user.tokens.get('editToken'));
-							mpm.$send().done(function() {
-								location.href = mw.util.getUrl( wgPageName );
+							mpm.$send().done(function(status, r) {
+								try {
+									r = $.secureEvalJSON( r );
+								} catch (ex) {}
+								if (r && r.upload && r.upload.result && r.upload.result === 'Success') {
+									location.href = mw.util.getUrl( wgPageName );
+								} else {
+									var extraStuff = '';
+									if ( !r || !r.error ) r = { error: {} };
+									if ( r.error.details ) {
+										extraStuff = $.toJSON( r.error.details );
+									}
+									alert(
+										'Upload failed because ' + r.error.code + ': ' +
+										r.error.info + '\n' + extraStuff
+									);
+								}
+							}).fail(function() {
+								alert( 'Upload failed due to a sever or connection error.' );
 							});
 						});
 					},
