@@ -1,31 +1,31 @@
 <?php
 
 /**
-* Hooks for CTFHandler extension
+* Hooks for MolHandler extension
 *
 * @file
 * @ingroup Extensions
 */
 
-class CTFHandlerHooks {
+class MolHandlerHooks {
 
 	public static function onParserAfterParse( $parser, $text, $stripState ) {
-		global $ctfHandlerConfig, $wgExtensionAssetsPath;
+		global $molHandlerConfig, $wgExtensionAssetsPath;
 
 		$title = $parser->getTitle();
 
 		if ( $title->inNamespace( NS_FILE ) && preg_match( '/\.(mol|rxn)$/i', $title->getText() ) ) {
 
 			# Add config
-			$ctfHandlerConfig['moleditor'] = $wgExtensionAssetsPath . '/' . basename ( __DIR__ ) . '/resources/ketcher/ketcher.html';
+			$molHandlerConfig['moleditor'] = $wgExtensionAssetsPath . '/' . basename ( __DIR__ ) . '/resources/ketcher/ketcher.html';
 			$parser->getOutput()->addJsConfigVars(
 				array(
-						'CTFHandlerConfig' => $ctfHandlerConfig,
+						'MolHandlerConfig' => $molHandlerConfig,
 				)
 			);
 
 			# Add module to be loaded
-			$parser->getOutput()->addModules( 'ext.ctfHandler' );
+			$parser->getOutput()->addModules( 'ext.molHandler' );
 		}
 		return true;
 	}

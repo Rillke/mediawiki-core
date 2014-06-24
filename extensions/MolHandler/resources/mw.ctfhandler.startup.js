@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	mw.log('CTFhandler at your service, Sir!');
+	mw.log('Molhandler at your service, Sir!');
 
 	$.fn.stopSpinaround = function() {
 		var $el = this;
@@ -41,7 +41,7 @@
 		var $defRL = $.Deferred(),
 			$defMolFile = $.Deferred(),
 			filePath = $('#file').find('a:first').attr('href'),
-			cfg = window.CTFHandlerConfig,
+			cfg = window.MolHandlerConfig,
 			fileContent, bot;
 
 		if (!filePath) alert('File appears to be corrupt and can therefore not be edited.');
@@ -50,7 +50,7 @@
 		molEdit.config.iFrameSrc = cfg.moleditor;
 
 		// Start loading stuff
-		mw.loader.using(['ext.ctfHandler.mwjsbot'], function() {
+		mw.loader.using(['ext.molHandler.mwjsbot'], function() {
 			bot = new MwJSBot();
 			bot.$downloadRawFile(filePath + '?t=' + $.now()).done(function(r) {
 				fileContent = r;
