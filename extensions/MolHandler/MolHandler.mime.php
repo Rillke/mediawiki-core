@@ -108,7 +108,7 @@ class MolHandlerMime {
 		);
 		static $tailsRegExps = array(
 			# MDL-Molfile with all kind of line endings
-			'/\n\s*$$$$\s*$/'                   => 'chemical/x-mdl-sdfile',
+			'/\n\s*\$\$\$\$\s*$/'               => 'chemical/x-mdl-sdfile',
 			'/\n\s*M  END\s*$/'                 => 'chemical/x-mdl-molfile',
 		);
 		static $headersRegExps = array(
