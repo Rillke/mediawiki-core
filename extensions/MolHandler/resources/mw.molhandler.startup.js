@@ -4,8 +4,6 @@
 
 	$.fn.stopSpinaround = function() {
 		var $el = this;
-		var iv = $el.data('spinaround-iv');
-		if (iv) clearInterval(iv);
 		$el.html($el.data('original-content'));
 	};
 	$.fn.spinaround = function() {
@@ -13,15 +11,7 @@
 		$el.data('original-content', $el.html());
 		// Freeze width
 		$el.width($el.width()).css('display', 'inline-block');
-		var dots = '.';
-		$el.text(dots);
-		
-		var iv = setInterval(function() {
-			dots += '.';
-			if (dots.length > 10) dots = '.';
-			$el.text(dots);
-		}, 100);
-		$el.data('spinaround-iv', iv);
+		$el.html('').append($.createSpinner());
 	};
 	
 	var loading = false;
@@ -40,11 +30,14 @@
 	
 		var $defRL = $.Deferred(),
 			$defMolFile = $.Deferred(),
-			filePath = $('#file').find('a:first').attr('href'),
+			filePath = $('#file').find('a:first').attr('href') || $('.fullMedia>.dangerousLink').find('a:first').attr('href'),
 			cfg = window.MolHandlerConfig,
 			fileContent, bot;
 
-		if (!filePath) alert('File appears to be corrupt and can therefore not be edited.');
+		if (!filePath) {
+			alert('File appears to be corrupt and can therefore not be edited.');
+			return $editLink.stopSpinaround();
+		}
 		
 		// Tell the wrapper where to look for the mol editor
 		molEdit.config.iFrameSrc = cfg.moleditor;

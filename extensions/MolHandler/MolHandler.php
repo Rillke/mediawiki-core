@@ -88,6 +88,7 @@ $wgResourceModules['ext.molHandler'] = array(
 		),
 		'dependencies' => array(
 			'mediawiki.Title',
+			'jquery.spinner'
 		),
 ) + $molHanlderModuleInfo;
 
