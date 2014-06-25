@@ -153,12 +153,16 @@
 									if ( r.error.details ) {
 										extraStuff = $.toJSON( r.error.details );
 									}
+									$molEdit.add($destWrap).fadeIn();
+									$loadNotify.text("Upload error.").fadeOut();
 									alert(
 										'Upload failed because ' + r.error.code + ': ' +
 										r.error.info + '\n' + extraStuff
 									);
 								}
 							}).fail(function() {
+								$molEdit.add($destWrap).fadeIn();
+								$loadNotify.text("Upload error.").fadeOut();
 								alert( 'Upload failed due to a sever or connection error.' );
 							});
 						});
