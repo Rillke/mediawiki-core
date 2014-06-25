@@ -217,8 +217,8 @@ abstract class MolHandler extends SvgHandler {
 		$err = false;
 		$retval = '';
 		$limits = array(
-				// 100 MiB - indigo-depict requires about 40 MiB with all libraries
-				'memory' => 102400
+				// 200 MiB - indigo-depict requires about 40 MiB with all libraries
+				'memory' => 204800
 		);
 
 		if ( !file_exists( $svgPath ) ) {
