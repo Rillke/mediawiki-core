@@ -155,7 +155,7 @@
 									}
 									$molEdit.add($destWrap).fadeIn();
 									$loadNotify.text("Upload error.").fadeOut();
-									$(this).dialog('widget').find('.ui-dialog-buttonpane button').button({
+									$editor.dialog('widget').find('.ui-dialog-buttonpane button').button({
 										'disabled': false
 									});
 									alert(
@@ -166,7 +166,7 @@
 							}).fail(function() {
 								$molEdit.add($destWrap).fadeIn();
 								$loadNotify.text("Upload error.").fadeOut();
-								$(this).dialog('widget').find('.ui-dialog-buttonpane button').button({
+								$editor.dialog('widget').find('.ui-dialog-buttonpane button').button({
 										'disabled': false
 									});
 								alert( 'Upload failed due to a sever or connection error.' );
