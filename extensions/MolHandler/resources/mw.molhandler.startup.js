@@ -3,15 +3,19 @@
 	mw.log('Molhandler at your service, Sir!');
 
 	$.fn.stopSpinaround = function() {
-		var $el = this;
-		$el.html($el.data('original-content'));
+		$.each(this, function(i, el) {
+			var $el = $(el);
+			$el.html($el.data('original-content'));
+		});
 	};
 	$.fn.spinaround = function() {
-		var $el = this;
-		$el.data('original-content', $el.html());
-		// Freeze width
-		$el.width($el.width()).css('display', 'inline-block');
-		$el.html('').append($.createSpinner());
+		$.each(this, function(i, el) {
+			var $el = $(el);
+			$el.data('original-content', $el.html());
+			// Freeze width
+			$el.width($el.width()).css('display', 'inline-block');
+			$el.html('').append($.createSpinner());
+		});
 	};
 	
 	var loading = false;
@@ -190,4 +194,8 @@
 			.attr('href', '#ctlEditFile')
 			.click(edit)
 			.prependTo($editNode);
+
+	$editLink = $( mw.util.addPortletLink( 'p-cactions', '#ctlEditFile', 'Edit Chemical table file', 'mwe-mol-ca-ac-editlink' ) )
+		.click( edit )
+		.add( $editLink );
 }());
