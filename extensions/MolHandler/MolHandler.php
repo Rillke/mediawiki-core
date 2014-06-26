@@ -42,13 +42,13 @@ $wgMessagesDirs['MolHandler'] = $wgMolHandlerDir . 'i18n';
 # Converter. Note that babel is not yet able to convert reactions
 $wgMolConverterPath = '/usr/bin';
 $wgMolConvertCommands = array(
-	babel => array(
-		command => '$path/babel -i$format $input $output',
-		supportedFormats => array( 'mol' )
+	'babel' => array(
+		'command' => '$path/babel -i$format $input $output',
+		'supportedFormats' => array( 'mol' )
 	),
-	indigo => array(
-		command => '$path/indigo-depict $input $output -thickness 1.8 -bond 20 -margins 7 5',
-		supportedFormats => array( 'mol', 'rxn' )
+	'indigo' => array(
+		'command' => '$path/indigo-depict $input $output -thickness 1.8 -bond 20 -margins 7 5',
+		'supportedFormats' => array( 'mol', 'rxn' )
 	),
 );
 $wgMolConverter = 'indigo';
