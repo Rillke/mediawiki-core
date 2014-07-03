@@ -64,6 +64,7 @@
 			var $submit,
 				$editor = $('<div>')
 					.attr('title', "Edit " + wgTitle)
+					.addClass('ext-mol-edit-dlg')
 					.css('position', 'relative'),
 				$loadNotify = $('<div>')
 					.text("CTLHandler is loading the awesome. Thanks to GGA for releasing their Molfile Editor 'Ketcher' under a free license so we can use it here.")
