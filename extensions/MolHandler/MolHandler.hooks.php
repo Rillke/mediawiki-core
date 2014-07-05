@@ -14,15 +14,15 @@ class MolHandlerHooks {
 
 		$title = $parser->getTitle();
 
-		if ( $title->inNamespace( NS_FILE ) && preg_match( '/\.(mol|rxn)$/i', $title->getText() ) ) {
+		# Add config
+		$molHandlerConfig['moleditor'] = $wgExtensionAssetsPath . '/' . basename ( __DIR__ ) . '/resources/ketcher/ketcher.html';
+		$parser->getOutput()->addJsConfigVars(
+			array(
+					'MolHandlerConfig' => $molHandlerConfig,
+			)
+		);
 
-			# Add config
-			$molHandlerConfig['moleditor'] = $wgExtensionAssetsPath . '/' . basename ( __DIR__ ) . '/resources/ketcher/ketcher.html';
-			$parser->getOutput()->addJsConfigVars(
-				array(
-						'MolHandlerConfig' => $molHandlerConfig,
-				)
-			);
+		if ( $title->inNamespace( NS_FILE ) && preg_match( '/\.(mol|rxn)$/i', $title->getText() ) ) {
 
 			# Add module to be loaded
 			$parser->getOutput()->addModules( 'ext.molHandler' );
