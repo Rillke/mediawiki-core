@@ -19,14 +19,15 @@
 	};
 	
 	var loading = false;
-	var edit = function(e) {
+	var edit = function(e, blankFileName, blankFilePath) {
 		if (mw.user.isAnon()) {
 			return location.href = mw.util.wikiScript() + '?' + $.param({
 				title: 'Special:UserLogin',
 				returnto: wgPageName
 			});
 		}
-	
+
+		if (blankFileName) var wgTitle = blankFileName;
 		if (e && e.preventDefault) e.preventDefault();
 		$editLink.spinaround();
 		if (loading) return;
@@ -34,7 +35,7 @@
 	
 		var $defRL = $.Deferred(),
 			$defMolFile = $.Deferred(),
-			filePath = $('#file').find('a:first').attr('href') || $('.fullMedia>.dangerousLink').find('a:first').attr('href'),
+			filePath = $('#file').find('a:first').attr('href') || $('.fullMedia>.dangerousLink').find('a:first').attr('href') || blankFilePath,
 			cfg = window.MolHandlerConfig,
 			fileContent, bot;
 
@@ -139,6 +140,7 @@
 							var blob = new Blob([molfile], {
 								type: mime
 							});
+							mpm.appendPart('comment', 'Forked from [[:File:' + wgTitle + ']]');
 							mpm.appendPart('file', blob, wgTitle, mime);
 							mpm.appendPart('ignorewarnings', 1);
 							mpm.appendPart('token', mw.user.tokens.get('editToken'));
@@ -209,4 +211,6 @@
 	$editLink = $( mw.util.addPortletLink( 'p-cactions', '#ctlEditFile', 'Edit Chemical table file', 'mwe-mol-ca-ac-editlink' ) )
 		.click( edit )
 		.add( $editLink );
+
+	window.editCTFile = edit;
 }());
