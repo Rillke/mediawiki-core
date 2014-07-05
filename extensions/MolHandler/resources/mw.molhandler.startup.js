@@ -28,6 +28,7 @@
 		}
 
 		if (blankFileName) var wgTitle = blankFileName;
+		if (!$editLink) $editLink = $();
 		if (e && e.preventDefault) e.preventDefault();
 		$editLink.spinaround();
 		if (loading) return;
