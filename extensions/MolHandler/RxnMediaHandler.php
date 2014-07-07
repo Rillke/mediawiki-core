@@ -27,4 +27,8 @@
 */
 class RxnMediaHandler extends MolHandler {
 	const FILE_FORMAT = 'rxn';
+
+	function getLongDesc( $file ) {
+		return str_replace( 'SVG', 'RXN', parent::getLongDesc( $file ) );
+	}
 }

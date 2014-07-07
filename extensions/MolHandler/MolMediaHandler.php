@@ -27,4 +27,8 @@
 */
 class MolMediaHandler extends MolHandler {
 	const FILE_FORMAT = 'mol';
+
+	function getLongDesc( $file ) {
+		return str_replace( 'SVG', 'MOL', parent::getLongDesc( $file ) );
+	}
 }
