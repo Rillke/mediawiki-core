@@ -47,7 +47,7 @@ $wgMolConvertCommands = array(
 		'supportedFormats' => array( 'mol' )
 	),
 	'indigo' => array(
-		'command' => '$path/indigo-depict $input $output -thickness 1.8 -bond 20 -margins 7 5',
+		'command' => '$path/indigo-depict $input $output -query -thickness 1.8 -bond 20 -margins 7 5',
 		'supportedFormats' => array( 'mol', 'rxn' )
 	),
 );
