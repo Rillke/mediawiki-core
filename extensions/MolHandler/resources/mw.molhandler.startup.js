@@ -27,7 +27,7 @@
 			});
 		}
 
-		if (blankFileName) var wgTitle = blankFileName;
+		var title = blankFileName || wgTitle;
 		if (!$editLink) $editLink = $();
 		if (e && e.preventDefault) e.preventDefault();
 		$editLink.spinaround();
@@ -65,7 +65,7 @@
 		$.when($defRL, $defMolFile).done(function() {
 			var $submit,
 				$editor = $('<div>')
-					.attr('title', "Edit " + wgTitle)
+					.attr('title', "Edit " + title)
 					.addClass('ext-mol-edit-dlg')
 					.css('position', 'relative'),
 				$loadNotify = $('<div>')
@@ -88,7 +88,7 @@
 					.text('Destination (file name)')
 					.appendTo($destWrap),
 				$destination = $('<input id="ext-mol-dest-input" type="text" placeholder="Destination (file name)" title="Destination (file name)" title" style="width:90%" />')
-					.val(wgTitle)
+					.val(title)
 					.appendTo($destWrap);
 				
 			// molEdit.$create adds some "special" properties that are not part of $.fn
@@ -137,12 +137,12 @@
 							mpm.appendPart('action', 'upload');
 							mpm.appendPart('filename', dest);
 							mpm.appendPart('filesize', molfile.length);
-							var mime = /\.mol$/.test(wgTitle) ? 'chemical/x-mdl-molfile' : 'chemical/x-mdl-rxnfile';
+							var mime = /\.mol$/.test(title) ? 'chemical/x-mdl-molfile' : 'chemical/x-mdl-rxnfile';
 							var blob = new Blob([molfile], {
 								type: mime
 							});
-							mpm.appendPart('comment', 'Forked from [[:File:' + wgTitle + ']]');
-							mpm.appendPart('file', blob, wgTitle, mime);
+							mpm.appendPart('comment', 'Forked from [[:File:' + title + ']]');
+							mpm.appendPart('file', blob, title, mime);
 							mpm.appendPart('ignorewarnings', 1);
 							mpm.appendPart('token', mw.user.tokens.get('editToken'));
 							mpm.$send().done(function(status, r) {
