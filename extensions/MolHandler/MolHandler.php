@@ -47,7 +47,7 @@ $wgMolConvertCommands = array(
 		'supportedFormats' => array( 'mol' )
 	),
 	'indigo' => array(
-		'command' => '$path/indigo-depict-1.1.12 $input $output -query',
+		'command' => '$path/indigo-depict-1.1.12 $input $output',
 		'supportedFormats' => array( 'mol', 'rxn' )
 	),
 );
